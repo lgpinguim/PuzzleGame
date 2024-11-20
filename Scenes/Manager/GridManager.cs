@@ -1,4 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
+using Game.Autoload;
+using Game.Component;
 using Godot;
 
 namespace Game.Manager;
@@ -11,6 +14,11 @@ public partial class GridManager : Node
 	private TileMapLayer highlightTileMapLayer;
 	[Export]
 	private TileMapLayer baseTerrainTileMapLayer;
+
+	public override void _Ready()
+	{
+		GameEvents.Instance.BuildingPlaced += OnBuildingPlaced;
+	}
 	
 	public bool IsTilePositionValid(Vector2I tilePosition)
 	{
@@ -26,21 +34,16 @@ public partial class GridManager : Node
 		occupiedCells.Add(tilePosition);
 	}
 
-	public void HighlightValidTilesInRadius(Vector2I rootCell, int radius)
+	public void HighlightBuildableTiles()
 	{
 		ClearHighlightTiles();
-		
-		for (var x = rootCell.X - radius; x <= rootCell.X + radius; x++)
+		var buildingComponents = GetTree().GetNodesInGroup(nameof(BuildingComponent)).Cast<BuildingComponent>();
+		foreach (var buildingComponent in buildingComponents)
 		{
-			for (var y = rootCell.Y -radius; y <= rootCell.Y + radius; y++)
-			{
-				var tilePosition = new Vector2I(x, y);
-				if(!IsTilePositionValid(tilePosition)) continue;
-				highlightTileMapLayer.SetCell(tilePosition, 0,Vector2I.Zero);
-			}
+			HighlightValidTilesInRadius(buildingComponent.GetGridCellPosition(),buildingComponent.BuildableRadius);
 		}
 	}
-
+	
 	public void ClearHighlightTiles()
 	{
 		highlightTileMapLayer.Clear();
@@ -53,4 +56,23 @@ public partial class GridManager : Node
 		gridposition = gridposition.Floor();
 		 return new Vector2I((int)gridposition.X, (int)gridposition.Y);
 	}
+	
+	private void HighlightValidTilesInRadius(Vector2I rootCell, int radius)
+	{
+		for (var x = rootCell.X - radius; x <= rootCell.X + radius; x++)
+		{
+			for (var y = rootCell.Y -radius; y <= rootCell.Y + radius; y++)
+			{
+				var tilePosition = new Vector2I(x, y);
+				if(!IsTilePositionValid(tilePosition)) continue;
+				highlightTileMapLayer.SetCell(tilePosition, 0,Vector2I.Zero);
+			}
+		}
+	}
+
+	private void OnBuildingPlaced(BuildingComponent buildingComponent)
+	{
+		MarkTileAsOccupied(buildingComponent.GetGridCellPosition());	
+	}
+	
 }
