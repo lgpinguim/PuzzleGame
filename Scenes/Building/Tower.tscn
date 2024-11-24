@@ -8,7 +8,7 @@ y_sort_enabled = true
 
 [node name="BuildingComponent" parent="." instance=ExtResource("1_ntwyv")]
 y_sort_enabled = true
-BuildableRadius = 3
+buildingResourcePath = "res://Resources/Building/tower.tres"
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 position = Vector2(32, 32)
