@@ -1,5 +1,6 @@
 using Game.Manager;
 using Game.Resources.Building;
+using Game.UI;
 using Godot;
 
 namespace Game;
@@ -10,10 +11,8 @@ public partial class Main : Node
 	private Sprite2D cursor;
 	private BuildingResource towerResource;
 	private BuildingResource villageResource;
-	private Button placeBuildingButton;
-	private Button placeVillageButton;
 	private Node2D ySortRoot;
-	
+	private GameUI gameUI;
 	private Vector2I? hoveredGridCell;
 	private BuildingResource toPlaceBuildingResource;
 	
@@ -23,14 +22,13 @@ public partial class Main : Node
 		villageResource = GD.Load<BuildingResource>("res://Resources/Building/village.tres");
 		gridManager = GetNode<GridManager>("GridManager");
 		cursor = GetNode<Sprite2D>("Cursor");
-		placeBuildingButton = GetNode<Button>("PlaceTowerButton");
-		placeVillageButton = GetNode<Button>("PlaceVillageButton");
 		ySortRoot = GetNode<Node2D>("YSortRoot");
+		gameUI = GetNode<GameUI>("GameUI");
 		
 		cursor.Visible = false;
 
-		placeBuildingButton.Pressed += OnPlaceTowerButtonPressed;
-		placeVillageButton.Pressed += OnButtonPlaceVillagePressed;
+		gameUI.PlaceTowerButtonPressed += OnPlaceTowerButtonPressed;
+		gameUI.PlaceVillageButtonPressed += OnButtonPlaceVillagePressed;
 		gridManager.ResourceTilesUpdated += OnResourceTilesUpdated;
 	}
 
