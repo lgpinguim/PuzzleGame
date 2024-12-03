@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://ddgr625ayh8iy"]
+
+[ext_resource type="Script" path="res://Scenes/GoldMine.cs" id="1_6kun3"]
+[ext_resource type="Texture2D" uid="uid://drflqc7wasih8" path="res://Assets/Buildings/gold_mine_inactive.png" id="1_fxbey"]
+[ext_resource type="Texture2D" uid="uid://no3rljstqlbd" path="res://Assets/Buildings/gold_mine_active.png" id="2_7e8ly"]
+
+[node name="GoldMine" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_6kun3")
+activeTexture = ExtResource("2_7e8ly")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+y_sort_enabled = true
+position = Vector2(32, 32)
+texture = ExtResource("1_fxbey")
+centered = false
+offset = Vector2(-96, -87)
