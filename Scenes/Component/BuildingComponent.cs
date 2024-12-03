@@ -26,4 +26,10 @@ public partial class BuildingComponent : Node2D
         gridposition = gridposition.Floor();
         return new Vector2I((int)gridposition.X, (int)gridposition.Y);
     }
+
+    public void DestroyBuilding()
+    {
+        GameEvents.EmitBuildingDestroyed(this);
+        Owner.QueueFree();
+    }
 }
