@@ -14,6 +14,7 @@ public partial class BuildingManager : Node
     private readonly StringName ACTION_CANCEL = "cancel";
     private readonly StringName ACTION_RIGHT_CLICK = "right_click";
 
+    [Export] private int startingResourceCount = 4;
     [Export] private GridManager gridManager;
     [Export] private GameUI gameUI;
     [Export] private Node2D ySortRoot;
@@ -26,7 +27,7 @@ public partial class BuildingManager : Node
     }
 
     private int currentResourceCount;
-    private int startingResourceCount = 4;
+
     private int currentlyUsedResourceCount;
     private BuildingResource toPlaceBuildingResource;
     private Vector2I hoveredGridCell;
