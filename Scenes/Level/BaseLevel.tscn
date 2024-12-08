@@ -50,4 +50,5 @@ tile_set = ExtResource("2_mm6ca")
 
 [node name="GameUI" parent="." instance=ExtResource("6_2s2qd")]
 offset_top = -1.0
-offset_bottom = -1.0
+offset_right = 32.0
+offset_bottom = 31.0
