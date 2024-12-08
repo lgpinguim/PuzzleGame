@@ -48,7 +48,3 @@ position = Vector2(384, 192)
 
 [node name="GoldMine" parent="YSortRoot" index="2"]
 position = Vector2(1088, 384)
-
-[node name="GameUI" parent="." index="5"]
-offset_top = 0.0
-offset_bottom = 0.0
