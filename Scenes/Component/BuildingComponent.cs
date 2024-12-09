@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Game.Autoload;
 using Game.Resources.Building;
 using Godot;
@@ -25,6 +26,21 @@ public partial class BuildingComponent : Node2D
         var gridposition = GlobalPosition / 64;
         gridposition = gridposition.Floor();
         return new Vector2I((int)gridposition.X, (int)gridposition.Y);
+    }
+
+    public List<Vector2I> GetOccupiedCellPositions()
+    {
+        var result = new List<Vector2I>();
+        var gridposition = GetGridCellPosition();
+        for (int x = gridposition.X; x < gridposition.X + BuildingResource.Dimensions.X; x++)
+        {
+            for (int y = gridposition.Y; y < gridposition.Y + BuildingResource.Dimensions.Y; y++)
+            {
+                result.Add(new Vector2I(x, y));
+            }
+        }
+        
+        return result;
     }
 
     public void DestroyBuilding()

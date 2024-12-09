@@ -10,3 +10,5 @@ y_sort_enabled = true
 buildingResourcePath = "res://Resources/Building/village.tres"
 
 [node name="VillageSprite2D" parent="." instance=ExtResource("2_1kvup")]
+position = Vector2(64, 96)
+offset = Vector2(-64, -172)

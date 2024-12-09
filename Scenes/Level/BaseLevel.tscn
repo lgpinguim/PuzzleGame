@@ -24,6 +24,8 @@ buildingGhostScene = ExtResource("6_xkhpp")
 highlightTileMapLayer = NodePath("../HighlightTileMapLayer")
 baseTerrainTileMapLayer = NodePath("../YSortRoot/BaseTerrainTileMapLayer")
 
+[node name="GameUI" parent="." instance=ExtResource("6_2s2qd")]
+
 [node name="GameCamera" parent="." instance=ExtResource("5_fx7s7")]
 
 [node name="YSortRoot" type="Node2D" parent="."]
@@ -47,8 +49,3 @@ unique_name_in_owner = true
 [node name="HighlightTileMapLayer" type="TileMapLayer" parent="."]
 modulate = Color(1, 1, 1, 0.498039)
 tile_set = ExtResource("2_mm6ca")
-
-[node name="GameUI" parent="." instance=ExtResource("6_2s2qd")]
-offset_top = -1.0
-offset_right = 32.0
-offset_bottom = 31.0
