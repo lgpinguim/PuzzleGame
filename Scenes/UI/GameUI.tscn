@@ -1,13 +1,15 @@
-[gd_scene load_steps=5 format=3 uid="uid://cdx6p0ymsb3b7"]
+[gd_scene load_steps=6 format=3 uid="uid://cdx6p0ymsb3b7"]
 
 [ext_resource type="Script" path="res://Scenes/UI/GameUI.cs" id="1_1jip6"]
 [ext_resource type="Resource" uid="uid://cqd2qywx74rla" path="res://Resources/Building/tower.tres" id="2_27354"]
 [ext_resource type="Resource" uid="uid://c52dh2o87byth" path="res://Resources/Building/village.tres" id="3_gobke"]
 [ext_resource type="Theme" uid="uid://bxpjqighviwxl" path="res://Resources/theme.tres" id="4_4fn5d"]
+[ext_resource type="PackedScene" uid="uid://bhc8ir4gh2av0" path="res://Scenes/UI/BuildingSection.tscn" id="4_fcd4m"]
 
 [node name="GameUI" type="CanvasLayer"]
 script = ExtResource("1_1jip6")
 buildingResources = Array[Object]([ExtResource("3_gobke"), ExtResource("2_27354")])
+buildingSectionScene = ExtResource("4_fcd4m")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 anchors_preset = 15
@@ -25,13 +27,7 @@ layout_mode = 2
 size_flags_horizontal = 0
 theme = ExtResource("4_4fn5d")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/PanelContainer"]
+[node name="BuildingSectionContainer" type="VBoxContainer" parent="MarginContainer/PanelContainer"]
+unique_name_in_owner = true
 layout_mode = 2
-
-[node name="BuildingButton" type="PanelContainer" parent="MarginContainer/PanelContainer/VBoxContainer"]
-layout_mode = 2
-theme_type_variation = &"PanelContainerAlternate"
-
-[node name="Button" type="Button" parent="MarginContainer/PanelContainer/VBoxContainer/BuildingButton"]
-layout_mode = 2
-text = "Place Building"
+theme_override_constants/separation = 50
