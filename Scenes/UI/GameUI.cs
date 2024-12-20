@@ -1,3 +1,4 @@
+using Game.Manager;
 using Game.Resources.Building;
 using Godot;
 
@@ -7,18 +8,21 @@ public partial class GameUI : CanvasLayer
 {
     [Signal]
     public delegate void BuildingResourceSelectedEventHandler(BuildingResource buildingResource);
-    
+
     private VBoxContainer buildingSectionContainer;
-    
-    [Export]
-    private BuildingResource[] buildingResources;
-    [Export]
-    private PackedScene buildingSectionScene;
+    private Label resourceLabel;
+
+    [Export] private BuildingManager buildingManager { get; set; }
+    [Export] private BuildingResource[] buildingResources;
+    [Export] private PackedScene buildingSectionScene;
     
     public override void _Ready()
     {
         buildingSectionContainer = GetNode<VBoxContainer>("%BuildingSectionContainer");
+        resourceLabel = GetNode<Label>("%ResourceLabel");
         CreateBuildingSections();
+
+        buildingManager.AvailableResourceCountChanged += OnAvailableResourceCountChanged;
     }
 
     private void CreateBuildingSections()
@@ -34,5 +38,10 @@ public partial class GameUI : CanvasLayer
                 EmitSignal(SignalName.BuildingResourceSelected, buildingResource);
             };
         }
+    }
+
+    private void OnAvailableResourceCountChanged(int availableResourceCount)
+    {
+        resourceLabel.Text = availableResourceCount.ToString();
     }
 }

@@ -14,6 +14,9 @@
 [node name="BaseLevel" type="Node"]
 script = ExtResource("1_3048e")
 
+[node name="GameUI" parent="." node_paths=PackedStringArray("buildingManager") instance=ExtResource("6_2s2qd")]
+buildingManager = NodePath("../BuildingManager")
+
 [node name="BuildingManager" parent="." node_paths=PackedStringArray("gridManager", "gameUI", "ySortRoot") instance=ExtResource("2_rxvdx")]
 gridManager = NodePath("../GridManager")
 gameUI = NodePath("../GameUI")
@@ -23,8 +26,6 @@ buildingGhostScene = ExtResource("6_xkhpp")
 [node name="GridManager" parent="." node_paths=PackedStringArray("highlightTileMapLayer", "baseTerrainTileMapLayer") instance=ExtResource("2_pgdv6")]
 highlightTileMapLayer = NodePath("../HighlightTileMapLayer")
 baseTerrainTileMapLayer = NodePath("../YSortRoot/BaseTerrainTileMapLayer")
-
-[node name="GameUI" parent="." instance=ExtResource("6_2s2qd")]
 
 [node name="GameCamera" parent="." instance=ExtResource("5_fx7s7")]
 

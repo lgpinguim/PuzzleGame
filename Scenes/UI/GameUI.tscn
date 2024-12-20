@@ -1,10 +1,15 @@
-[gd_scene load_steps=6 format=3 uid="uid://cdx6p0ymsb3b7"]
+[gd_scene load_steps=8 format=3 uid="uid://cdx6p0ymsb3b7"]
 
 [ext_resource type="Script" path="res://Scenes/UI/GameUI.cs" id="1_1jip6"]
 [ext_resource type="Resource" uid="uid://cqd2qywx74rla" path="res://Resources/Building/tower.tres" id="2_27354"]
 [ext_resource type="Resource" uid="uid://c52dh2o87byth" path="res://Resources/Building/village.tres" id="3_gobke"]
 [ext_resource type="Theme" uid="uid://bxpjqighviwxl" path="res://Resources/theme.tres" id="4_4fn5d"]
 [ext_resource type="PackedScene" uid="uid://bhc8ir4gh2av0" path="res://Scenes/UI/BuildingSection.tscn" id="4_fcd4m"]
+[ext_resource type="Texture2D" uid="uid://clqxyymipdwg1" path="res://Assets/UI/wood_icon.png" id="6_6krx1"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rude2"]
+atlas = ExtResource("6_6krx1")
+region = Rect2(39, 72, 32, 28)
 
 [node name="GameUI" type="CanvasLayer"]
 script = ExtResource("1_1jip6")
@@ -27,7 +32,29 @@ layout_mode = 2
 size_flags_horizontal = 0
 theme = ExtResource("4_4fn5d")
 
-[node name="BuildingSectionContainer" type="VBoxContainer" parent="MarginContainer/PanelContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/PanelContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 8
+texture = SubResource("AtlasTexture_rude2")
+stretch_mode = 3
+
+[node name="ResourceLabel" type="Label" parent="MarginContainer/PanelContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0.619608, 0.529412, 0.462745, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 48
+text = "4"
+
+[node name="BuildingSectionContainer" type="VBoxContainer" parent="MarginContainer/PanelContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 16
