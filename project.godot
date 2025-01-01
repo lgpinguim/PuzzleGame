@@ -11,13 +11,14 @@ config_version=5
 [application]
 
 config/name="PuzzleCourse"
-run/main_scene="res://Scenes/Level/Level1.tscn"
+run/main_scene="res://Scenes/UI/MainMenu.tscn"
 config/features=PackedStringArray("4.3", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
 [autoload]
 
 GameEvents="*res://Scenes/Autoload/GameEvents.tscn"
+LevelManager="*res://Scenes/Autoload/LevelManager.tscn"
 
 [display]
 
