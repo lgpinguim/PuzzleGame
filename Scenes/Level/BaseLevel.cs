@@ -1,4 +1,5 @@
 using Game.Manager;
+using Game.Resources.Level;
 using Game.UI;
 using Godot;
 
@@ -8,6 +9,8 @@ public partial class BaseLevel : Node
 {
 	[Export]
 	private PackedScene LevelCompleteScreenScene;
+	[Export]
+	private LevelDefinitionResource levelDefinitionResource;
 	
 	private GridManager gridManager;
 	private GoldMine goldMine;
@@ -15,6 +18,7 @@ public partial class BaseLevel : Node
 	private TileMapLayer baseTerrainTileMapLayer;
 	private Node2D baseBuilding;
 	private GameUI gameUI;
+	private BuildingManager buildingManager;
 	
 	public override void _Ready()
 	{
@@ -24,6 +28,9 @@ public partial class BaseLevel : Node
 		baseTerrainTileMapLayer = GetNode<TileMapLayer>("%BaseTerrainTileMapLayer");
 		baseBuilding = GetNode<Node2D>("%Base");
 		gameUI = GetNode<GameUI>("GameUI");
+		buildingManager = GetNode<BuildingManager>("BuildingManager");
+		
+		buildingManager.SetStartingResourceCount(levelDefinitionResource.StartingResourceCount);
 		
 		gameCamera.SetBoundingRect(baseTerrainTileMapLayer.GetUsedRect());
 		gameCamera.CenterOnPosition(baseBuilding.GlobalPosition);
