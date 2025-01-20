@@ -1,3 +1,5 @@
+using System.Linq;
+using Game.Resources.Level;
 using Godot;
 
 namespace Game.Autoload;
@@ -6,7 +8,7 @@ public partial class LevelManager : Node
 {
     public static LevelManager Instance { get; private set; }
 
-    [Export] private PackedScene[] levelScenes;
+    [Export] private LevelDefinitionResource[] levelDefinitions;
     
     private int currentLevelIndex = 0;
 
@@ -18,16 +20,21 @@ public partial class LevelManager : Node
         }
     }
 
+    public static LevelDefinitionResource[] GetLevelDefinitions()
+    {
+        return Instance.levelDefinitions.ToArray();
+    }
+    
     public override void _Ready()
     {
     }
 
     public void ChangeToLevel(int levelIndex)
     {
-        if (levelIndex >= levelScenes.Length || levelIndex < 0) return;
+        if (levelIndex >= levelDefinitions.Length || levelIndex < 0) return;
         currentLevelIndex = levelIndex;
-        var levelScene = levelScenes[currentLevelIndex];
-        GetTree().ChangeSceneToPacked(levelScene);
+        var levelScene = levelDefinitions[currentLevelIndex];
+        GetTree().ChangeSceneToFile(levelScene.LevelScenePath);
     }
 
     public void ChangeToNextLevel()
