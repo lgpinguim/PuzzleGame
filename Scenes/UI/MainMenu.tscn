@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=4 uid="uid://jul2e4v6yfw2"]
+[gd_scene load_steps=9 format=4 uid="uid://jul2e4v6yfw2"]
 
 [ext_resource type="Script" path="res://Scenes/UI/MainMenu.cs" id="1_synrh"]
 [ext_resource type="TileSet" uid="uid://mdxvjfbqrigq" path="res://Resources/tiles.tres" id="2_xn48v"]
@@ -7,51 +7,13 @@
 [ext_resource type="PackedScene" uid="uid://gckpc37chrjw" path="res://Scenes/Building/Tower.tscn" id="5_kcwgb"]
 [ext_resource type="PackedScene" uid="uid://px4lg6tryyv5" path="res://Scenes/Building/Base.tscn" id="5_no58c"]
 [ext_resource type="PackedScene" uid="uid://ddgr625ayh8iy" path="res://Scenes/GoldMine.tscn" id="6_1634o"]
+[ext_resource type="PackedScene" uid="uid://f7cf2tfu8fq0" path="res://Scenes/UI/LevelSelectScreen.tscn" id="8_crrlw"]
 
 [node name="MainMenu" type="Node"]
 script = ExtResource("1_synrh")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(640, 192)
-
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
-
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="PanelContainer" type="PanelContainer" parent="CanvasLayer/MarginContainer"]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/MarginContainer/PanelContainer"]
-layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
-
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/MarginContainer/PanelContainer/MarginContainer"]
-custom_minimum_size = Vector2(192, 0)
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="PlayButton" type="Button" parent="CanvasLayer/MarginContainer/PanelContainer/MarginContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Play"
-
-[node name="OptionsButton" type="Button" parent="CanvasLayer/MarginContainer/PanelContainer/MarginContainer/VBoxContainer"]
-layout_mode = 2
-text = "Options"
-
-[node name="QuitButton" type="Button" parent="CanvasLayer/MarginContainer/PanelContainer/MarginContainer/VBoxContainer"]
-layout_mode = 2
-text = "Quit"
 
 [node name="YSortRoot" type="Node2D" parent="."]
 y_sort_enabled = true
@@ -106,5 +68,49 @@ position = Vector2(704, 192)
 [node name="GoldMine" parent="YSortRoot" instance=ExtResource("6_1634o")]
 unique_name_in_owner = true
 position = Vector2(128, 0)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="MainMenuContainer" type="MarginContainer" parent="CanvasLayer"]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="CanvasLayer/MainMenuContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/MainMenuContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/MainMenuContainer/PanelContainer/MarginContainer"]
+custom_minimum_size = Vector2(192, 0)
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="PlayButton" type="Button" parent="CanvasLayer/MainMenuContainer/PanelContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Play"
+
+[node name="OptionsButton" type="Button" parent="CanvasLayer/MainMenuContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Options"
+
+[node name="QuitButton" type="Button" parent="CanvasLayer/MainMenuContainer/PanelContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Quit"
+
+[node name="LevelSelectScreen" parent="CanvasLayer" instance=ExtResource("8_crrlw")]
+unique_name_in_owner = true
 
 [editable path="YSortRoot/BaseTerrainTileMapLayer/ElevationLayer"]
