@@ -11,5 +11,4 @@ y_sort_enabled = true
 buildingResourcePath = "res://Resources/Building/tower.tres"
 
 [node name="TowerSprite2D" parent="." instance=ExtResource("2_f3lxe")]
-position = Vector2(64, 96)
 offset = Vector2(-64, -236)

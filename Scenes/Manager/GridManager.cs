@@ -112,7 +112,7 @@ public partial class GridManager : Node
         }
     }
 
-    public void ClearHighlightTiles()
+    public void ClearHighlightedTiles()
     {
         highlightTileMapLayer.Clear();
     }
