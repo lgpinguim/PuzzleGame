@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://wsu0x1ocdqo1"]
+[gd_scene load_steps=4 format=3 uid="uid://wsu0x1ocdqo1"]
 
 [ext_resource type="PackedScene" uid="uid://b328hfgifwb8r" path="res://Scenes/Component/BuildingComponent.tscn" id="1_mg5kk"]
 [ext_resource type="PackedScene" uid="uid://chtwya14kei8" path="res://Scenes/Building/Sprite/VillageSprite2D.tscn" id="2_1kvup"]
+[ext_resource type="PackedScene" uid="uid://bgvp0hejsqi4t" path="res://Scenes/Component/BuildingAnimatorComponent.tscn" id="2_wod24"]
 
 [node name="Village" type="Node2D"]
 y_sort_enabled = true
@@ -9,5 +10,7 @@ y_sort_enabled = true
 [node name="BuildingComponent" parent="." instance=ExtResource("1_mg5kk")]
 buildingResourcePath = "res://Resources/Building/village.tres"
 
-[node name="VillageSprite2D" parent="." instance=ExtResource("2_1kvup")]
+[node name="BuildingAnimatorComponent" parent="." instance=ExtResource("2_wod24")]
+
+[node name="VillageSprite2D" parent="BuildingAnimatorComponent" instance=ExtResource("2_1kvup")]
 offset = Vector2(-64, -172)
