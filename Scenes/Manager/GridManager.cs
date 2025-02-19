@@ -208,15 +208,14 @@ public partial class GridManager : Node
         EmitSignal(SignalName.GridStateUpdated);
     }
 
-    private void RecalculateGrid(BuildingComponent excludedBuildingComponent)
+    private void RecalculateGrid()
     {
         occupiedTiles.Clear();
         validBuildableTiles.Clear();
         allTilesInBuildingRadius.Clear();
         collectedResourceTiles.Clear();
 
-        var buildingComponents = GetTree().GetNodesInGroup(nameof(BuildingComponent)).Cast<BuildingComponent>()
-            .Where((buildingComponent) => excludedBuildingComponent != buildingComponent);
+        var buildingComponents = BuildingComponent.GetValidBuildingComponents(this);
 
         foreach (var buildingComponent in buildingComponents)
         {
@@ -278,6 +277,6 @@ public partial class GridManager : Node
 
     private void OnBuildingDestroyed(BuildingComponent buildingcomponent)
     {
-        RecalculateGrid(buildingcomponent);
+        RecalculateGrid();
     }
 }

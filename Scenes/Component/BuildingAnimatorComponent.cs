@@ -52,6 +52,8 @@ public partial class BuildingAnimatorComponent : Node2D
         {
             activeTween.Kill();
         }
+        
+        animationRootNode.Position = Vector2.Zero;
 
         maskNode.ClipChildren = ClipChildrenMode.Only;
         maskNode.Texture = maskTexture;

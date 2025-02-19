@@ -16,7 +16,16 @@ public partial class BuildingComponent : Node2D
     
     public BuildingResource BuildingResource { get; private set; }
     
+    public bool IsDestroying { get; private set; }
+    
     private HashSet<Vector2I> occupiedTiles = new();
+
+    public static IEnumerable<BuildingComponent> GetValidBuildingComponents(Node node)
+    {
+        return node.GetTree()
+            .GetNodesInGroup(nameof(BuildingComponent)).Cast<BuildingComponent>()
+            .Where(buildingComponent => !buildingComponent.IsDestroying);
+    }
     
     public override void _Ready()
     {
@@ -53,6 +62,7 @@ public partial class BuildingComponent : Node2D
 
     public void DestroyBuilding()
     {
+        IsDestroying = true;
         GameEvents.EmitBuildingDestroyed(this);
         buildingAnimatorComponent?.PlayDestroyAnimation();
         if (buildingAnimatorComponent == null)
