@@ -13,5 +13,6 @@ Dimensions = Vector2i(2, 2)
 ResourceCost = 2
 BuildableRadius = 0
 ResourceRadius = 3
+DangerRadius = 0
 BuildingScene = ExtResource("1_qq378")
 SpriteScene = ExtResource("2_wxtja")
