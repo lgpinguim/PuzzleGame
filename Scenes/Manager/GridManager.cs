@@ -10,300 +10,298 @@ namespace Game.Manager;
 
 public partial class GridManager : Node
 {
-    private const string IS_BUILDABLE = "is_buildable";
-    private const string IS_WOOD = "is_wood";
-    private const string IS_IGNORED = "is_ignored";
+	private const string IS_BUILDABLE = "is_buildable";
+	private const string IS_WOOD = "is_wood";
+	private const string IS_IGNORED = "is_ignored";
 
-    [Signal]
-    public delegate void ResourceTilesUpdatedEventHandler(int collectedTiles);
+	[Signal]
+	public delegate void ResourceTilesUpdatedEventHandler(int collectedTiles);
+	[Signal]
+	public delegate void GridStateUpdatedEventHandler();
 
-    [Signal]
-    public delegate void GridStateUpdatedEventHandler();
+	private HashSet<Vector2I> validBuildableTiles = new();
+	private HashSet<Vector2I> validAttackTiles = new();
+	private HashSet<Vector2I> allTilesInBuildingRadius = new();
+	private HashSet<Vector2I> collectedResourceTiles = new();
+	private HashSet<Vector2I> occupiedTiles = new();
+	private HashSet<Vector2I> goblinOccupiedTiles = new();
 
-    private HashSet<Vector2I> validBuildableTiles = new();
-    private HashSet<Vector2I> allTilesInBuildingRadius = new();
-    private HashSet<Vector2I> collectedResourceTiles = new();
-    private HashSet<Vector2I> occupiedTiles = new();
-    private HashSet<Vector2I> goblinOccupiedTiles = new();
+	[Export]
+	private TileMapLayer highlightTilemapLayer;
+	[Export]
+	private TileMapLayer baseTerrainTilemapLayer;
 
-    [Export] private TileMapLayer highlightTileMapLayer;
-    [Export] private TileMapLayer baseTerrainTileMapLayer;
+	private List<TileMapLayer> allTilemapLayers = new();
+	private Dictionary<TileMapLayer, ElevationLayer> tileMapLayerToElevationLayer = new();
 
-    private List<TileMapLayer> allTileMapLayers = new();
-    private Dictionary<TileMapLayer, ElevationLayer> tileMapLayersToElevationLayer = new();
+	public override void _Ready()
+	{
+		GameEvents.Instance.Connect(GameEvents.SignalName.BuildingPlaced, Callable.From<BuildingComponent>(OnBuildingPlaced));
+		GameEvents.Instance.Connect(GameEvents.SignalName.BuildingDestroyed, Callable.From<BuildingComponent>(OnBuildingDestroyed));
+		allTilemapLayers = GetAllTilemapLayers(baseTerrainTilemapLayer);
+		MapTileMapLayersToElevationLayers();
+	}
 
-    public override void _Ready()
-    {
-        GameEvents.Instance.Connect(GameEvents.SignalName.BuildingPlaced,
-            Callable.From<BuildingComponent>(OnBuildingPlaced));
-        GameEvents.Instance.Connect(GameEvents.SignalName.BuildingDestroyed,
-            Callable.From<BuildingComponent>(OnBuildingDestroyed));
-        allTileMapLayers = GetAllTileMapLayers(baseTerrainTileMapLayer);
-        MapTileMapLayersToElevationLayers();
-    }
+	public (TileMapLayer, bool) GetTileCustomData(Vector2I tilePosition, string dataName)
+	{
+		foreach (var layer in allTilemapLayers)
+		{
+			var customData = layer.GetCellTileData(tilePosition);
+			if (customData == null || (bool)customData.GetCustomData(IS_IGNORED)) continue;
+			return (layer, (bool)customData.GetCustomData(dataName));
+		}
+		return (null, false);
+	}
 
-    public (TileMapLayer, bool) GetTileCustomData(Vector2I tilePosition, string customDataName)
-    {
-        foreach (var tileMapLayer in allTileMapLayers)
-        {
-            var customData = tileMapLayer.GetCellTileData(tilePosition);
-            if (customData is null || (bool)customData.GetCustomData(IS_IGNORED)) continue;
-            return (tileMapLayer, (bool)customData.GetCustomData(customDataName));
-        }
+	public bool IsTilePositionInAnyBuildingRadius(Vector2I tilePosition)
+	{
+		return allTilesInBuildingRadius.Contains(tilePosition);
+	}
 
-        return (null, false);
-    }
+	public bool IsTileAreaBuildable(Rect2I tileArea, bool isAttackTiles = false)
+	{
+		var tiles = tileArea.ToTiles();
+		if (tiles.Count == 0) return false;
 
-    public bool IsTilePositionBuildable(Vector2I tilePosition)
-    {
-        return validBuildableTiles.Contains(tilePosition);
-    }
+		(TileMapLayer firstTileMapLayer, _) = GetTileCustomData(tiles[0], IS_BUILDABLE);
+		var targetElevationLayer = firstTileMapLayer != null ? tileMapLayerToElevationLayer[firstTileMapLayer] : null;
 
-    public bool IsTilePositionInAnyBuildingRadius(Vector2I tilePosition)
-    {
-        return allTilesInBuildingRadius.Contains(tilePosition);
-    }
+		return tiles.All((tilePosition) =>
+		{
+			(TileMapLayer tileMapLayer, bool isBuildable) = GetTileCustomData(tilePosition, IS_BUILDABLE);
+			var elevationLayer = tileMapLayer != null ? tileMapLayerToElevationLayer[tileMapLayer] : null;
+			return isBuildable && GetBuildableTileSet(isAttackTiles)
+				.Contains(tilePosition) && elevationLayer == targetElevationLayer;
+		});
+	}
 
-    public bool IsTileAreaBuildable(Rect2I tileArea)
-    {
-        var tiles = tileArea.ToTiles();
+	public void HighlightGoblinOccupiedTiles()
+	{
+		var atlasCoords = new Vector2I(2, 0);
+		foreach (var tilePosition in goblinOccupiedTiles)
+		{
+			highlightTilemapLayer.SetCell(tilePosition, 0, atlasCoords);
+		}
+	}
 
-        if (tiles.Count == 0)
-        {
-            return false;
-        }
+	public void HighlightBuildableTiles(bool isAttackTiles = false)
+	{
+		foreach (var tilePosition in GetBuildableTileSet(isAttackTiles))
+		{
+			highlightTilemapLayer.SetCell(tilePosition, 0, Vector2I.Zero);
+		}
+	}
 
-        (TileMapLayer firstTileMapLayer, _) = GetTileCustomData(tiles[0], IS_BUILDABLE);
+	public void HighlightExpandedBuildableTiles(Rect2I tileArea, int radius)
+	{
+		var validTiles = GetValidTilesInRadius(tileArea, radius).ToHashSet();
+		var expandedTiles = validTiles.Except(validBuildableTiles).Except(occupiedTiles);
+		var atlasCoords = new Vector2I(1, 0);
+		foreach (var tilePosition in expandedTiles)
+		{
+			highlightTilemapLayer.SetCell(tilePosition, 0, atlasCoords);
+		}
+	}
 
-        var targetElevationLayer = firstTileMapLayer != null ? tileMapLayersToElevationLayer[firstTileMapLayer] : null;
+	public void HighlightResourceTiles(Rect2I tileArea, int radius)
+	{
+		var resourceTiles = GetResourceTilesInRadius(tileArea, radius);
+		var atlasCoords = new Vector2I(1, 0);
+		foreach (var tilePosition in resourceTiles)
+		{
+			highlightTilemapLayer.SetCell(tilePosition, 0, atlasCoords);
+		}
+	}
 
-        return tiles.All((tilePosition) =>
-        {
-            (TileMapLayer tileMapLayer, bool isBuildable) = GetTileCustomData(tilePosition, IS_BUILDABLE);
-            var elevationLayer = tileMapLayer != null ? tileMapLayersToElevationLayer[tileMapLayer] : null;
-            return isBuildable && validBuildableTiles.Contains(tilePosition) && elevationLayer == targetElevationLayer;
-        });
-    }
+	public void ClearHighlightedTiles()
+	{
+		highlightTilemapLayer.Clear();
+	}
 
-    public void HighlightGoblinOccupiedTiles()
-    {
-        var atlasCoords = new Vector2I(2, 0);
-        foreach (var tilePosition in goblinOccupiedTiles)
-        {
-            highlightTileMapLayer.SetCell(tilePosition, 0, atlasCoords);
-        }
-    }
+	public Vector2I GetMouseGridCellPositionWithDimensionOffset(Vector2 dimensions)
+	{
+		var mouseGridPosition = highlightTilemapLayer.GetGlobalMousePosition() / 64;
+		mouseGridPosition -= dimensions / 2;
+		mouseGridPosition = mouseGridPosition.Round();
+		return new Vector2I((int)mouseGridPosition.X, (int)mouseGridPosition.Y);
+	}
 
-    public void HighlightBuildableTiles()
-    {
-        foreach (var tilePosition in validBuildableTiles)
-        {
-            highlightTileMapLayer.SetCell(tilePosition, 0, Vector2I.Zero);
-        }
-    }
+	public Vector2I GetMouseGridCellPosition()
+	{
+		var mousePosition = highlightTilemapLayer.GetGlobalMousePosition();
+		return ConvertWorldPositionToTilePosition(mousePosition);
+	}
 
-    public void HighlightExpandedBuildableTiles(Rect2I tileArea, int radius)
-    {
-        var validTiles = GetValidTilesInRadius(tileArea, radius).ToHashSet();
-        var expandedTiles = validTiles.Except(validBuildableTiles).Except(occupiedTiles).Except(goblinOccupiedTiles);
-        var atlasCoords = new Vector2I(1, 0);
-        foreach (var tilePosition in expandedTiles)
-        {
-            highlightTileMapLayer.SetCell(tilePosition, 0, atlasCoords);
-        }
-    }
+	public Vector2I ConvertWorldPositionToTilePosition(Vector2 worldPosition)
+	{
+		var tilePosition = worldPosition / 64;
+		tilePosition = tilePosition.Floor();
+		return new Vector2I((int)tilePosition.X, (int)tilePosition.Y);
+	}
 
-    public void HighlightResourceTiles(Rect2I tileArea, int radius)
-    {
-        var resourceTiles = GetResourceTilesInRadius(tileArea, radius);
-        var atlasCoords = new Vector2I(1, 0);
-        foreach (var tilePosition in resourceTiles)
-        {
-            highlightTileMapLayer.SetCell(tilePosition, 0, atlasCoords);
-        }
-    }
+	private HashSet<Vector2I> GetBuildableTileSet(bool isAttackTiles = false)
+	{
+		return isAttackTiles ? validAttackTiles : validBuildableTiles;
+	}
 
-    public Vector2I GetMouseGridCellPositionWithDimensionsOffset(Vector2 dimensions)
-    {
-        var mouseGridPosition = highlightTileMapLayer.GetGlobalMousePosition() / 64;
-        mouseGridPosition -= dimensions / 2;
-        mouseGridPosition = mouseGridPosition.Round();
-        return new Vector2I((int)mouseGridPosition.X, (int)mouseGridPosition.Y);
-    }
+	private List<TileMapLayer> GetAllTilemapLayers(Node2D rootNode)
+	{
+		var result = new List<TileMapLayer>();
+		var children = rootNode.GetChildren();
+		children.Reverse();
+		foreach (var child in children)
+		{
+			if (child is Node2D childNode)
+			{
+				result.AddRange(GetAllTilemapLayers(childNode));
+			}
+		}
 
-    public void ClearHighlightedTiles()
-    {
-        highlightTileMapLayer.Clear();
-    }
+		if (rootNode is TileMapLayer tileMapLayer)
+		{
+			result.Add(tileMapLayer);
+		}
+		return result;
+	}
 
-    public Vector2I GetMouseGridCellPosition()
-    {
-        var mousePosition = highlightTileMapLayer.GetGlobalMousePosition();
-        return ConvertWolrdPositionToGridPosition(mousePosition);
-    }
+	private void MapTileMapLayersToElevationLayers()
+	{
+		foreach (var layer in allTilemapLayers)
+		{
+			ElevationLayer elevationLayer;
+			Node startNode = layer;
+			do
+			{
+				var parent = startNode.GetParent();
+				elevationLayer = parent as ElevationLayer;
+				startNode = parent;
+			} while (elevationLayer == null && startNode != null);
 
-    public Vector2I ConvertWolrdPositionToGridPosition(Vector2 worldPosition)
-    {
-        var tilePosition = worldPosition / 64;
-        tilePosition = tilePosition.Floor();
-        return new Vector2I((int)tilePosition.X, (int)tilePosition.Y);
-    }
+			tileMapLayerToElevationLayer[layer] = elevationLayer;
+		}
+	}
 
-    private List<TileMapLayer> GetAllTileMapLayers(Node2D rootNode)
-    {
-        var result = new List<TileMapLayer>();
-        var children = rootNode.GetChildren();
-        children.Reverse();
-        foreach (var child in children)
-        {
-            if (child is Node2D childNode)
-            {
-                result.AddRange(GetAllTileMapLayers(childNode));
-            }
-        }
+	private void UpdateGoblinOccupiedTiles(BuildingComponent buildingComponent)
+	{
+		occupiedTiles.UnionWith(buildingComponent.GetOccupiedCellPositions());
+		var rootCell = buildingComponent.GetGridCellPosition();
+		var tileArea = new Rect2I(rootCell, buildingComponent.BuildingResource.Dimensions);
+		if (buildingComponent.BuildingResource.DangerRadius > 0)
+		{
+			var tilesInRadius = GetValidTilesInRadius(tileArea, buildingComponent.BuildingResource.DangerRadius).ToHashSet();
+			tilesInRadius.ExceptWith(occupiedTiles);
+			goblinOccupiedTiles.UnionWith(tilesInRadius);
+		}
+	}
 
-        if (rootNode is TileMapLayer tileMapLayer)
-        {
-            result.Add(tileMapLayer);
-        }
+	private void UpdateValidBuildableTiles(BuildingComponent buildingComponent)
+	{
+		occupiedTiles.UnionWith(buildingComponent.GetOccupiedCellPositions());
+		var rootCell = buildingComponent.GetGridCellPosition();
+		var tileArea = new Rect2I(rootCell, buildingComponent.BuildingResource.Dimensions);
 
-        return result;
-    }
+		var allTiles = GetTilesInRadius(tileArea, buildingComponent.BuildingResource.BuildableRadius, (_) => true);
+		allTilesInBuildingRadius.UnionWith(allTiles);
 
-    private void MapTileMapLayersToElevationLayers()
-    {
-        foreach (var layer in allTileMapLayers)
-        {
-            ElevationLayer elevationLayer;
-            Node startNode = layer;
-            do
-            {
-                var parent = startNode.GetParent();
-                elevationLayer = parent as ElevationLayer;
-                startNode = parent;
-            } while (elevationLayer == null && startNode is not null);
+		var validTiles = GetValidTilesInRadius(tileArea, buildingComponent.BuildingResource.BuildableRadius);
+		validBuildableTiles.UnionWith(validTiles);
+		validBuildableTiles.ExceptWith(occupiedTiles);
+		validAttackTiles.UnionWith(validBuildableTiles);
 
-            tileMapLayersToElevationLayer[layer] = elevationLayer;
-        }
-    }
+		validBuildableTiles.ExceptWith(goblinOccupiedTiles);
+		EmitSignal(SignalName.GridStateUpdated);
+	}
 
-    private void UpdateGoblinOccupiedTiles(BuildingComponent buildingComponent)
-    {
-        occupiedTiles.UnionWith(buildingComponent.GetOccupiedCellPositions());
-        var rootCell = buildingComponent.GetGridCellPosition();
-        var tileArea = new Rect2I(rootCell, buildingComponent.BuildingResource.Dimensions);
-        if (buildingComponent.BuildingResource.DangerRadius > 0)
-        {
-            var tilesInRadius = GetValidTilesInRadius(tileArea, buildingComponent.BuildingResource.DangerRadius).ToHashSet();
-            tilesInRadius.ExceptWith(occupiedTiles);
-            goblinOccupiedTiles.UnionWith(tilesInRadius);
-        }
-    }
+	private void UpdateCollectedResourceTiles(BuildingComponent buildingComponent)
+	{
+		var rootCell = buildingComponent.GetGridCellPosition();
+		var tileArea = new Rect2I(rootCell, buildingComponent.BuildingResource.Dimensions);
+		var resourceTiles = GetResourceTilesInRadius(tileArea, buildingComponent.BuildingResource.ResourceRadius);
 
-    private void UpdateValidBuildableTiles(BuildingComponent buildingComponent)
-    {
-        occupiedTiles.UnionWith(buildingComponent.GetOccupiedCellPositions());
-        var rootCell = buildingComponent.GetGridCellPosition();
-        var tileArea = new Rect2I(rootCell, buildingComponent.BuildingResource.Dimensions);
+		var oldResourceTileCount = collectedResourceTiles.Count;
+		collectedResourceTiles.UnionWith(resourceTiles);
 
-        var allTiles = GetTilesInRadius(tileArea, buildingComponent.BuildingResource.BuildableRadius, (_) => true);
-        allTilesInBuildingRadius.UnionWith(allTiles);
+		if (oldResourceTileCount != collectedResourceTiles.Count)
+		{
+			EmitSignal(SignalName.ResourceTilesUpdated, collectedResourceTiles.Count);
+		}
+		EmitSignal(SignalName.GridStateUpdated);
+	}
 
-        var validTiles = GetValidTilesInRadius(tileArea, buildingComponent.BuildingResource.BuildableRadius);
-        validBuildableTiles.UnionWith(validTiles);
-        validBuildableTiles.ExceptWith(occupiedTiles);
-        validBuildableTiles.ExceptWith(goblinOccupiedTiles);
-        EmitSignal(SignalName.GridStateUpdated);
-    }
+	private void RecalculateGrid()
+	{
+		occupiedTiles.Clear();
+		validBuildableTiles.Clear();
+		validAttackTiles.Clear();
+		allTilesInBuildingRadius.Clear();
+		collectedResourceTiles.Clear();
+		goblinOccupiedTiles.Clear();
 
-    private void UpdateCollectedResourceTiles(BuildingComponent buildingComponent)
-    {
-        var rootCell = buildingComponent.GetGridCellPosition();
-        var tileArea = new Rect2I(rootCell, buildingComponent.BuildingResource.Dimensions);
-        var resouceTiles = GetResourceTilesInRadius(tileArea, buildingComponent.BuildingResource.ResourceRadius);
+		var buildingComponents = BuildingComponent.GetValidBuildingComponents(this);
 
-        var oldResourceTilesCount = collectedResourceTiles.Count;
-        collectedResourceTiles.UnionWith(resouceTiles);
+		foreach (var buildingComponent in buildingComponents)
+		{
+			UpdateGoblinOccupiedTiles(buildingComponent);
+			UpdateValidBuildableTiles(buildingComponent);
+			UpdateCollectedResourceTiles(buildingComponent);
+		}
 
-        if (oldResourceTilesCount != collectedResourceTiles.Count)
-        {
-            EmitSignal(SignalName.ResourceTilesUpdated, collectedResourceTiles.Count);
-        }
+		EmitSignal(SignalName.ResourceTilesUpdated, collectedResourceTiles.Count);
+		EmitSignal(SignalName.GridStateUpdated);
+	}
 
-        EmitSignal(SignalName.GridStateUpdated);
-    }
+	private bool IsTileInsideCircle(Vector2 centerPosition, Vector2 tilePosition, float radius)
+	{
+		var distanceX = centerPosition.X - (tilePosition.X + .5);
+		var distanceY = centerPosition.Y - (tilePosition.Y + .5);
+		var distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
+		return distanceSquared <= radius * radius;
+	}
 
-    private void RecalculateGrid()
-    {
-        occupiedTiles.Clear();
-        validBuildableTiles.Clear();
-        allTilesInBuildingRadius.Clear();
-        collectedResourceTiles.Clear();
+	private List<Vector2I> GetTilesInRadius(Rect2I tileArea, int radius, Func<Vector2I, bool> filterFn)
+	{
+		var result = new List<Vector2I>();
+		var tileAreaF = tileArea.ToRect2F();
+		var tileAreaCenter = tileAreaF.GetCenter();
+		var radiusMod = Mathf.Max(tileAreaF.Size.X, tileAreaF.Size.Y) / 2;
 
-        var buildingComponents = BuildingComponent.GetValidBuildingComponents(this);
+		for (var x = tileArea.Position.X - radius; x < tileArea.End.X + radius; x++)
+		{
+			for (var y = tileArea.Position.Y - radius; y < tileArea.End.Y + radius; y++)
+			{
+				var tilePosition = new Vector2I(x, y);
+				if (!IsTileInsideCircle(tileAreaCenter, tilePosition, radius + radiusMod) || !filterFn(tilePosition)) continue;
+				result.Add(tilePosition);
+			}
+		}
+		return result;
+	}
 
-        foreach (var buildingComponent in buildingComponents)
-        {
-            UpdateValidBuildableTiles(buildingComponent);
-            UpdateCollectedResourceTiles(buildingComponent);
-        }
+	private List<Vector2I> GetValidTilesInRadius(Rect2I tileArea, int radius)
+	{
+		return GetTilesInRadius(tileArea, radius, (tilePosition) =>
+		{
+			return GetTileCustomData(tilePosition, IS_BUILDABLE).Item2;
+		});
+	}
 
-        EmitSignal(SignalName.ResourceTilesUpdated, collectedResourceTiles.Count);
+	private List<Vector2I> GetResourceTilesInRadius(Rect2I tileArea, int radius)
+	{
+		return GetTilesInRadius(tileArea, radius, (tilePosition) =>
+		{
+			return GetTileCustomData(tilePosition, IS_WOOD).Item2;
+		});
+	}
 
-        EmitSignal(SignalName.GridStateUpdated);
-    }
+	private void OnBuildingPlaced(BuildingComponent buildingComponent)
+	{
+		UpdateGoblinOccupiedTiles(buildingComponent);
+		UpdateValidBuildableTiles(buildingComponent);
+		UpdateCollectedResourceTiles(buildingComponent);
+	}
 
-    private bool IsTileInsideCircle(Vector2 centerPosition, Vector2 tilePosition, float radius)
-    {
-        var distanceX = centerPosition.X - (tilePosition.X + 0.5f);
-        var distanceY = centerPosition.Y - (tilePosition.Y + 0.5f);
-        var distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
-        return distanceSquared <= radius * radius;
-    }
-
-    private List<Vector2I> GetTilesInRadius(Rect2I tileArea, int radius, Func<Vector2I, bool> filterFunction)
-    {
-        var result = new List<Vector2I>();
-        var tileAreaF = tileArea.ToRect2F();
-        var tileAreaCenter = tileAreaF.GetCenter();
-        var radiusMod = Mathf.Max(tileAreaF.Size.X, tileAreaF.Size.Y) / 2;
-
-
-        for (var x = tileArea.Position.X - radius; x < tileArea.End.X + radius; x++)
-        {
-            for (var y = tileArea.Position.Y - radius; y <= tileArea.End.Y + radius; y++)
-            {
-                var tilePosition = new Vector2I(x, y);
-                if (!IsTileInsideCircle(tileAreaCenter, tilePosition, radius + radiusMod) ||
-                    !filterFunction(tilePosition)) continue;
-                result.Add(tilePosition);
-            }
-        }
-
-        return result;
-    }
-
-    private List<Vector2I> GetValidTilesInRadius(Rect2I tileArea, int radius)
-    {
-        return GetTilesInRadius(tileArea, radius,
-            (tilePosition) => { return GetTileCustomData(tilePosition, IS_BUILDABLE).Item2; });
-    }
-
-    private List<Vector2I> GetResourceTilesInRadius(Rect2I tileArea, int radius)
-    {
-        return GetTilesInRadius(tileArea, radius,
-            (tilePosition) => { return GetTileCustomData(tilePosition, IS_WOOD).Item2; });
-    }
-
-    private void OnBuildingPlaced(BuildingComponent buildingComponent)
-    {
-        UpdateGoblinOccupiedTiles(buildingComponent);
-        UpdateValidBuildableTiles(buildingComponent);
-        UpdateCollectedResourceTiles(buildingComponent);
-    }
-
-    private void OnBuildingDestroyed(BuildingComponent buildingcomponent)
-    {
-        RecalculateGrid();
-    }
+	private void OnBuildingDestroyed(BuildingComponent buildingComponent)
+	{
+		RecalculateGrid();
+	}
 }

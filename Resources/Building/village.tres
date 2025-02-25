@@ -14,5 +14,6 @@ ResourceCost = 2
 BuildableRadius = 0
 ResourceRadius = 3
 DangerRadius = 0
+AttackRadius = 0
 BuildingScene = ExtResource("1_qq378")
 SpriteScene = ExtResource("2_wxtja")

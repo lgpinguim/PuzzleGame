@@ -25,9 +25,9 @@ gameUI = NodePath("../GameUI")
 ySortRoot = NodePath("../YSortRoot")
 buildingGhostScene = ExtResource("6_xkhpp")
 
-[node name="GridManager" parent="." node_paths=PackedStringArray("highlightTileMapLayer", "baseTerrainTileMapLayer") instance=ExtResource("2_pgdv6")]
-highlightTileMapLayer = NodePath("../YSortRoot/HighlightTileMapLayer")
-baseTerrainTileMapLayer = NodePath("../YSortRoot/BaseTerrainTileMapLayer")
+[node name="GridManager" parent="." node_paths=PackedStringArray("highlightTilemapLayer", "baseTerrainTilemapLayer") instance=ExtResource("2_pgdv6")]
+highlightTilemapLayer = NodePath("../YSortRoot/HighlightTileMapLayer")
+baseTerrainTilemapLayer = NodePath("../YSortRoot/BaseTerrainTileMapLayer")
 
 [node name="GameCamera" parent="." instance=ExtResource("5_fx7s7")]
 
