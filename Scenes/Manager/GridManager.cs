@@ -20,11 +20,12 @@ public partial class GridManager : Node
 	public delegate void GridStateUpdatedEventHandler();
 
 	private HashSet<Vector2I> validBuildableTiles = new();
-	private HashSet<Vector2I> validAttackTiles = new();
+	private HashSet<Vector2I> validBuildableAttackTiles = new();
 	private HashSet<Vector2I> allTilesInBuildingRadius = new();
 	private HashSet<Vector2I> collectedResourceTiles = new();
 	private HashSet<Vector2I> occupiedTiles = new();
 	private HashSet<Vector2I> goblinOccupiedTiles = new();
+	private HashSet<Vector2I> attackTiles = new();
 
 	[Export]
 	private TileMapLayer highlightTilemapLayer;
@@ -159,7 +160,7 @@ public partial class GridManager : Node
 
 	private HashSet<Vector2I> GetBuildableTileSet(bool isAttackTiles = false)
 	{
-		return isAttackTiles ? validAttackTiles : validBuildableTiles;
+		return isAttackTiles ? validBuildableAttackTiles : validBuildableTiles;
 	}
 
 	private List<TileMapLayer> GetAllTilemapLayers(Node2D rootNode)
@@ -202,11 +203,9 @@ public partial class GridManager : Node
 	private void UpdateGoblinOccupiedTiles(BuildingComponent buildingComponent)
 	{
 		occupiedTiles.UnionWith(buildingComponent.GetOccupiedCellPositions());
-		var rootCell = buildingComponent.GetGridCellPosition();
-		var tileArea = new Rect2I(rootCell, buildingComponent.BuildingResource.Dimensions);
-		if (buildingComponent.BuildingResource.DangerRadius > 0)
+		if (buildingComponent.BuildingResource.IsDangerBuilding())
 		{
-			var tilesInRadius = GetValidTilesInRadius(tileArea, buildingComponent.BuildingResource.DangerRadius).ToHashSet();
+			var tilesInRadius = GetValidTilesInRadius(buildingComponent.GetTileArea(), buildingComponent.BuildingResource.DangerRadius).ToHashSet();
 			tilesInRadius.ExceptWith(occupiedTiles);
 			goblinOccupiedTiles.UnionWith(tilesInRadius);
 		}
@@ -215,16 +214,15 @@ public partial class GridManager : Node
 	private void UpdateValidBuildableTiles(BuildingComponent buildingComponent)
 	{
 		occupiedTiles.UnionWith(buildingComponent.GetOccupiedCellPositions());
-		var rootCell = buildingComponent.GetGridCellPosition();
-		var tileArea = new Rect2I(rootCell, buildingComponent.BuildingResource.Dimensions);
 
-		var allTiles = GetTilesInRadius(tileArea, buildingComponent.BuildingResource.BuildableRadius, (_) => true);
+
+		var allTiles = GetTilesInRadius(buildingComponent.GetTileArea(), buildingComponent.BuildingResource.BuildableRadius, (_) => true);
 		allTilesInBuildingRadius.UnionWith(allTiles);
 
-		var validTiles = GetValidTilesInRadius(tileArea, buildingComponent.BuildingResource.BuildableRadius);
+		var validTiles = GetValidTilesInRadius(buildingComponent.GetTileArea(), buildingComponent.BuildingResource.BuildableRadius);
 		validBuildableTiles.UnionWith(validTiles);
 		validBuildableTiles.ExceptWith(occupiedTiles);
-		validAttackTiles.UnionWith(validBuildableTiles);
+		validBuildableAttackTiles.UnionWith(validBuildableTiles);
 
 		validBuildableTiles.ExceptWith(goblinOccupiedTiles);
 		EmitSignal(SignalName.GridStateUpdated);
@@ -232,10 +230,7 @@ public partial class GridManager : Node
 
 	private void UpdateCollectedResourceTiles(BuildingComponent buildingComponent)
 	{
-		var rootCell = buildingComponent.GetGridCellPosition();
-		var tileArea = new Rect2I(rootCell, buildingComponent.BuildingResource.Dimensions);
-		var resourceTiles = GetResourceTilesInRadius(tileArea, buildingComponent.BuildingResource.ResourceRadius);
-
+		var resourceTiles = GetResourceTilesInRadius(buildingComponent.GetTileArea(), buildingComponent.BuildingResource.ResourceRadius);
 		var oldResourceTileCount = collectedResourceTiles.Count;
 		collectedResourceTiles.UnionWith(resourceTiles);
 
@@ -246,26 +241,68 @@ public partial class GridManager : Node
 		EmitSignal(SignalName.GridStateUpdated);
 	}
 
+	private void UpdateAttackTiles(BuildingComponent buildingComponent)
+	{
+		if (!buildingComponent.BuildingResource.IsAttackBuilding())
+		{
+			return;
+		}
+		
+		var newAttackTiles = GetTilesInRadius(buildingComponent.GetTileArea(), buildingComponent.BuildingResource.AttackRadius,(_) => true).ToHashSet();
+		attackTiles.UnionWith(newAttackTiles);
+	}
+
 	private void RecalculateGrid()
 	{
 		occupiedTiles.Clear();
 		validBuildableTiles.Clear();
-		validAttackTiles.Clear();
+		validBuildableAttackTiles.Clear();
 		allTilesInBuildingRadius.Clear();
 		collectedResourceTiles.Clear();
 		goblinOccupiedTiles.Clear();
+		attackTiles.Clear();
 
 		var buildingComponents = BuildingComponent.GetValidBuildingComponents(this);
 
 		foreach (var buildingComponent in buildingComponents)
 		{
-			UpdateGoblinOccupiedTiles(buildingComponent);
-			UpdateValidBuildableTiles(buildingComponent);
-			UpdateCollectedResourceTiles(buildingComponent);
+			UpdateBuildingComponentGridState(buildingComponent);
 		}
 
 		EmitSignal(SignalName.ResourceTilesUpdated, collectedResourceTiles.Count);
 		EmitSignal(SignalName.GridStateUpdated);
+	}
+
+	private void RecalculateGoblinOccupiedTiles()
+	{
+		goblinOccupiedTiles.Clear();
+		var dangerBuildings = BuildingComponent.GetDangerBuildingComponents(this);
+		foreach (var dangerBuilding in dangerBuildings)
+		{
+			UpdateGoblinOccupiedTiles(dangerBuilding);
+		}
+	}
+
+	private void CheckGoblinCampDestruction()
+	{
+		var dangerBuildings = BuildingComponent.GetDangerBuildingComponents(this);
+
+		var  isCampDestroyed = false;
+		foreach (var dangerBuilding in dangerBuildings)
+		{
+			var tileArea = dangerBuilding.GetTileArea();
+			var isInsideAtackArea = tileArea.ToTiles().Any(tilePosition => attackTiles.Contains(tilePosition));
+			if (isInsideAtackArea)
+			{
+				isCampDestroyed = true;
+				dangerBuilding.Destroy();
+			}
+		}
+
+		if (isCampDestroyed)
+		{
+			RecalculateGoblinOccupiedTiles();
+		}
 	}
 
 	private bool IsTileInsideCircle(Vector2 centerPosition, Vector2 tilePosition, float radius)
@@ -311,11 +348,18 @@ public partial class GridManager : Node
 		});
 	}
 
-	private void OnBuildingPlaced(BuildingComponent buildingComponent)
+	private void UpdateBuildingComponentGridState(BuildingComponent buildingComponent)
 	{
 		UpdateGoblinOccupiedTiles(buildingComponent);
 		UpdateValidBuildableTiles(buildingComponent);
 		UpdateCollectedResourceTiles(buildingComponent);
+		UpdateAttackTiles(buildingComponent);
+	}
+
+	private void OnBuildingPlaced(BuildingComponent buildingComponent)
+	{
+		UpdateBuildingComponentGridState(buildingComponent);
+		CheckGoblinCampDestruction();
 	}
 
 	private void OnBuildingDestroyed(BuildingComponent buildingComponent)

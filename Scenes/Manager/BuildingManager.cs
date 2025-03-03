@@ -169,7 +169,7 @@ public partial class BuildingManager : Node
         if (buildingComponent == null) return;
 
         currentlyUsedResourceCount -= buildingComponent.BuildingResource.ResourceCost;
-        buildingComponent.DestroyBuilding();
+        buildingComponent.Destroy();
         EmitSignal(SignalName.AvailableResourceCountChanged, AvailableResourceCount);
     }
 
