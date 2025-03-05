@@ -8,16 +8,14 @@ namespace Game.Component;
 
 public partial class BuildingComponent : Node2D
 {
-    [Export(PropertyHint.File,"*.tres")] 
-    private string buildingResourcePath;
-    
-    [Export]
-    private BuildingAnimatorComponent buildingAnimatorComponent;
-    
+    [Export(PropertyHint.File, "*.tres")] private string buildingResourcePath;
+
+    [Export] private BuildingAnimatorComponent buildingAnimatorComponent;
+
     public BuildingResource BuildingResource { get; private set; }
-    
     public bool IsDestroying { get; private set; }
-    
+    public bool IsDisabled { get; private set; }
+
     private HashSet<Vector2I> occupiedTiles = new();
 
     public static IEnumerable<BuildingComponent> GetValidBuildingComponents(Node node)
@@ -29,9 +27,10 @@ public partial class BuildingComponent : Node2D
 
     public static IEnumerable<BuildingComponent> GetDangerBuildingComponents(Node node)
     {
-        return GetValidBuildingComponents(node).Where(buildingComponent => buildingComponent.BuildingResource.IsDangerBuilding());
+        return GetValidBuildingComponents(node)
+            .Where(buildingComponent => buildingComponent.BuildingResource.IsDangerBuilding());
     }
-    
+
     public override void _Ready()
     {
         if (buildingResourcePath != null)
@@ -43,7 +42,7 @@ public partial class BuildingComponent : Node2D
         {
             buildingAnimatorComponent.DestroyAnimationFinished += OnDestroyAnimationFinished;
         }
-        
+
         AddToGroup(nameof(BuildingComponent));
         Callable.From(Initialize).CallDeferred();
     }
@@ -71,6 +70,20 @@ public partial class BuildingComponent : Node2D
         return occupiedTiles.Contains(tilePosition);
     }
 
+    public void Disable()
+    {
+        if (IsDisabled) return;
+        IsDisabled = true;
+        GameEvents.EmitBuildingDisabled(this);
+    }
+
+    public void Enable()
+    {
+        if (!IsDisabled) return;
+        IsDisabled = false;
+        GameEvents.EmitBuildingEnabled(this);
+    }
+
     public void Destroy()
     {
         IsDestroying = true;
@@ -81,7 +94,7 @@ public partial class BuildingComponent : Node2D
             Owner.QueueFree();
         }
     }
-    
+
     private void CalculateOccupiedCellPositions()
     {
         var gridposition = GetGridCellPosition();
@@ -93,7 +106,7 @@ public partial class BuildingComponent : Node2D
             }
         }
     }
-    
+
     private void Initialize()
     {
         CalculateOccupiedCellPositions();

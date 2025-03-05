@@ -39,6 +39,8 @@ public partial class GridManager : Node
 	{
 		GameEvents.Instance.Connect(GameEvents.SignalName.BuildingPlaced, Callable.From<BuildingComponent>(OnBuildingPlaced));
 		GameEvents.Instance.Connect(GameEvents.SignalName.BuildingDestroyed, Callable.From<BuildingComponent>(OnBuildingDestroyed));
+		GameEvents.Instance.Connect(GameEvents.SignalName.BuildingEnabled, Callable.From<BuildingComponent>(OnBuildingEnabled));
+		GameEvents.Instance.Connect(GameEvents.SignalName.BuildingDisabled, Callable.From<BuildingComponent>(OnBuildingDisabled));
 		allTilemapLayers = GetAllTilemapLayers(baseTerrainTilemapLayer);
 		MapTileMapLayersToElevationLayers();
 	}
@@ -203,6 +205,9 @@ public partial class GridManager : Node
 	private void UpdateGoblinOccupiedTiles(BuildingComponent buildingComponent)
 	{
 		occupiedTiles.UnionWith(buildingComponent.GetOccupiedCellPositions());
+
+		if (buildingComponent.IsDisabled) return;
+		
 		if (buildingComponent.BuildingResource.IsDangerBuilding())
 		{
 			var tilesInRadius = GetValidTilesInRadius(buildingComponent.GetTileArea(), buildingComponent.BuildingResource.DangerRadius).ToHashSet();
@@ -268,6 +273,8 @@ public partial class GridManager : Node
 		{
 			UpdateBuildingComponentGridState(buildingComponent);
 		}
+        
+        CheckGoblinCampDestruction();
 
 		EmitSignal(SignalName.ResourceTilesUpdated, collectedResourceTiles.Count);
 		EmitSignal(SignalName.GridStateUpdated);
@@ -286,23 +293,20 @@ public partial class GridManager : Node
 	private void CheckGoblinCampDestruction()
 	{
 		var dangerBuildings = BuildingComponent.GetDangerBuildingComponents(this);
-
-		var  isCampDestroyed = false;
 		foreach (var dangerBuilding in dangerBuildings)
 		{
 			var tileArea = dangerBuilding.GetTileArea();
-			var isInsideAtackArea = tileArea.ToTiles().Any(tilePosition => attackTiles.Contains(tilePosition));
-			if (isInsideAtackArea)
+			var isInsideAttackArea = tileArea.ToTiles().Any(tilePosition => attackTiles.Contains(tilePosition));
+			if (isInsideAttackArea)
 			{
-				isCampDestroyed = true;
-				dangerBuilding.Destroy();
+				dangerBuilding.Disable();
+			}
+			else
+			{
+				dangerBuilding.Enable();
 			}
 		}
-
-		if (isCampDestroyed)
-		{
-			RecalculateGoblinOccupiedTiles();
-		}
+		
 	}
 
 	private bool IsTileInsideCircle(Vector2 centerPosition, Vector2 tilePosition, float radius)
@@ -365,5 +369,15 @@ public partial class GridManager : Node
 	private void OnBuildingDestroyed(BuildingComponent buildingComponent)
 	{
 		RecalculateGrid();
+	}
+
+	private void OnBuildingEnabled(BuildingComponent buildingComponent)
+	{
+		UpdateBuildingComponentGridState(buildingComponent);
+	}
+
+	private void OnBuildingDisabled(BuildingComponent buildingComponent)
+	{
+		 RecalculateGrid();
 	}
 }
