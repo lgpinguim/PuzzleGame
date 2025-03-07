@@ -167,7 +167,8 @@ public partial class BuildingManager : Node
                        buildingComponent.IsTileInBuildingArea(rootCell);
             });
         if (buildingComponent == null) return;
-
+        if (!gridManager.CanDestroyBuilding(buildingComponent)) return;
+        
         currentlyUsedResourceCount -= buildingComponent.BuildingResource.ResourceCost;
         buildingComponent.Destroy();
         EmitSignal(SignalName.AvailableResourceCountChanged, AvailableResourceCount);
