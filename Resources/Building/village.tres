@@ -9,6 +9,7 @@ script = ExtResource("1_3phg4")
 DisplayName = "Village"
 Description = "Gathers Wood"
 IsDeletable = true
+IsBase = false
 Dimensions = Vector2i(2, 2)
 ResourceCost = 2
 BuildableRadius = 0
