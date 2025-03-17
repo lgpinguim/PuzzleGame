@@ -1,6 +1,6 @@
 [gd_scene load_steps=9 format=3 uid="uid://cb4ivxnssa7uq"]
 
-[ext_resource type="Script" path="res://Scenes/Building/BuildingGhost.cs" id="1_bu20e"]
+[ext_resource type="Script" uid="uid://dlpdny5r1rs7r" path="res://Scenes/Building/BuildingGhost.cs" id="1_bu20e"]
 [ext_resource type="Texture2D" uid="uid://cob4xqyqabyq6" path="res://Assets/UI/region_top_left.png" id="2_jbau8"]
 [ext_resource type="Texture2D" uid="uid://7cfqy3u3g4op" path="res://Assets/UI/region_top_right.png" id="3_3rtkb"]
 [ext_resource type="Texture2D" uid="uid://du7gamhrcc0ip" path="res://Assets/UI/region_bottom_left.png" id="4_ft10k"]
@@ -113,8 +113,8 @@ tracks/3/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_ojdl4"]
 _data = {
-"RESET": SubResource("Animation_k6wpv"),
-"default": SubResource("Animation_p8w0k")
+&"RESET": SubResource("Animation_k6wpv"),
+&"default": SubResource("Animation_p8w0k")
 }
 
 [node name="BuildingGhost" type="Node2D"]

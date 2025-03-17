@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://f7cf2tfu8fq0"]
 
 [ext_resource type="PackedScene" uid="uid://cnksm8w27kfcq" path="res://Scenes/UI/LevelSelectSection.tscn" id="1_fx384"]
-[ext_resource type="Script" path="res://Scenes/UI/LevelSelectScreen.cs" id="1_i048w"]
+[ext_resource type="Script" uid="uid://cud7q652vr2dc" path="res://Scenes/UI/LevelSelectScreen.cs" id="1_i048w"]
 
 [node name="LevelSelectScreen" type="MarginContainer"]
 anchors_preset = 15

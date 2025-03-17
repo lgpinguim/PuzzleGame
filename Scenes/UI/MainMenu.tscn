@@ -1,6 +1,6 @@
 [gd_scene load_steps=9 format=4 uid="uid://jul2e4v6yfw2"]
 
-[ext_resource type="Script" path="res://Scenes/UI/MainMenu.cs" id="1_synrh"]
+[ext_resource type="Script" uid="uid://b7ckjhmqj2j17" path="res://Scenes/UI/MainMenu.cs" id="1_synrh"]
 [ext_resource type="TileSet" uid="uid://mdxvjfbqrigq" path="res://Resources/tiles.tres" id="2_xn48v"]
 [ext_resource type="PackedScene" uid="uid://mb8xo0abqmyh" path="res://Scenes/Level/Util/ElevationLayer.tscn" id="3_dyepj"]
 [ext_resource type="PackedScene" uid="uid://wsu0x1ocdqo1" path="res://Scenes/Building/Village.tscn" id="4_yd70y"]

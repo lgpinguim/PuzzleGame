@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dl1h485wn42a4"]
 
-[ext_resource type="Script" path="res://Scenes/Manager/BuildingManager.cs" id="1_n7kpv"]
+[ext_resource type="Script" uid="uid://ckt1dh7gmqryj" path="res://Scenes/Manager/BuildingManager.cs" id="1_n7kpv"]
 
 [node name="BuildingManager" type="Node"]
 script = ExtResource("1_n7kpv")

@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://bhc8ir4gh2av0"]
 
-[ext_resource type="Script" path="res://Scenes/UI/BuildingSection.cs" id="1_2bq87"]
+[ext_resource type="Script" uid="uid://dd6nw88on2xae" path="res://Scenes/UI/BuildingSection.cs" id="1_2bq87"]
 [ext_resource type="Texture2D" uid="uid://clqxyymipdwg1" path="res://Assets/UI/wood_icon.png" id="2_e5xr0"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_g5g6v"]

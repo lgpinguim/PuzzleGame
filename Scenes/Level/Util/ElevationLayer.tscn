@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://mb8xo0abqmyh"]
 
-[ext_resource type="Script" path="res://Scenes/Level/Util/ElevationLayer.cs" id="1_pxx05"]
+[ext_resource type="Script" uid="uid://ditbjy6bogihq" path="res://Scenes/Level/Util/ElevationLayer.cs" id="1_pxx05"]
 [ext_resource type="TileSet" uid="uid://mdxvjfbqrigq" path="res://Resources/tiles.tres" id="2_1u10k"]
 
 [node name="ElevationLayer" type="Node2D"]

@@ -73,8 +73,8 @@ tracks/1/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_vr7on"]
 _data = {
-"Default": SubResource("Animation_ort3q"),
-"RESET": SubResource("Animation_eoyjf")
+&"Default": SubResource("Animation_ort3q"),
+&"RESET": SubResource("Animation_eoyjf")
 }
 
 [sub_resource type="Curve" id="Curve_uiaw8"]

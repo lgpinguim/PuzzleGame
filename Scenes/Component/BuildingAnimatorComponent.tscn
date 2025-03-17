@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://bgvp0hejsqi4t"]
 
-[ext_resource type="Script" path="res://Scenes/Component/BuildingAnimatorComponent.cs" id="1_m7tto"]
+[ext_resource type="Script" uid="uid://bgjf0lacinxd7" path="res://Scenes/Component/BuildingAnimatorComponent.cs" id="1_m7tto"]
 [ext_resource type="PackedScene" uid="uid://f2tn2vxgrpua" path="res://Scenes/Effects/BuildingImpactParticles.tscn" id="2_ei1yl"]
 [ext_resource type="Texture2D" uid="uid://tphipyk8au8w" path="res://Resources/Building/building_mask.png" id="2_pishu"]
 [ext_resource type="PackedScene" uid="uid://cilccsxovcr7c" path="res://Scenes/Effects/BuildingDestroyParticles.tscn" id="3_oietl"]
