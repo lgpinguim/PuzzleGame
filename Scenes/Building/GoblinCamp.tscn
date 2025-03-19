@@ -44,7 +44,7 @@ animations = [{
 y_sort_enabled = true
 
 [node name="BuildingComponent" parent="." node_paths=PackedStringArray("buildingAnimatorComponent") instance=ExtResource("1_vcfb8")]
-buildingResourcePath = "res://Resources/Building/goblin_camp.tres"
+buildingResourcePath = "uid://bjajj87ehxqy8"
 buildingAnimatorComponent = NodePath("../BuildingAnimatorComponent")
 
 [node name="BuildingAnimatorComponent" parent="." instance=ExtResource("2_ikx4q")]

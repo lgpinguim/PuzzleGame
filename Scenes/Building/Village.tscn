@@ -8,7 +8,7 @@
 y_sort_enabled = true
 
 [node name="BuildingComponent" parent="." node_paths=PackedStringArray("buildingAnimatorComponent") instance=ExtResource("1_mg5kk")]
-buildingResourcePath = "res://Resources/Building/village.tres"
+buildingResourcePath = "uid://c52dh2o87byth"
 buildingAnimatorComponent = NodePath("../BuildingAnimatorComponent")
 
 [node name="BuildingAnimatorComponent" parent="." instance=ExtResource("2_wod24")]

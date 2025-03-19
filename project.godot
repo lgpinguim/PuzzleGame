@@ -12,6 +12,8 @@ config_version=5
 
 config/name="PuzzleCourse"
 run/main_scene="res://Scenes/UI/MainMenu.tscn"
+config/use_custom_user_dir=true
+config/custom_user_dir_name="2DPuzzleCourse"
 config/features=PackedStringArray("4.4", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 

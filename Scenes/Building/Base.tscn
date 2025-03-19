@@ -7,7 +7,7 @@
 y_sort_enabled = true
 
 [node name="BuildingComponent" parent="." instance=ExtResource("1_rbt4y")]
-buildingResourcePath = "res://Resources/Building/base.tres"
+buildingResourcePath = "uid://bcw66xo2x6iw2"
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 y_sort_enabled = true
