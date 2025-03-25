@@ -22,6 +22,7 @@ config/icon="res://icon.svg"
 GameEvents="*res://Scenes/Autoload/GameEvents.tscn"
 LevelManager="*res://Scenes/Autoload/LevelManager.tscn"
 SaveManager="*res://Scenes/Autoload/SaveManager.tscn"
+SettingsManager="*res://Scenes/Autoload/SettingsManager.tscn"
 
 [display]
 
