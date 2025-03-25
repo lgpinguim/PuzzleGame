@@ -20,6 +20,12 @@ public partial class SaveManager : Node
             LoadSaveData();
         }
     }
+
+    public static bool IsLevelCompleted(string levelId)
+    {
+        saveData.LevelCompletionStatus.TryGetValue(levelId, out var data);
+        return data?.IsCompleted is true;
+    }
     
     public static void SaveLevelCompletion(LevelDefinitionResource levelDefinitionResource)
     {
