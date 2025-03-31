@@ -82,7 +82,7 @@ y_sort_enabled = true
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
-&"": SubResource("AnimationLibrary_i01me")
+"": SubResource("AnimationLibrary_i01me")
 }
 autoplay = "default"
 
@@ -93,10 +93,10 @@ position = Vector2(0, 64)
 position = Vector2(0, -54)
 emitting = false
 amount = 50
+process_material = SubResource("ParticleProcessMaterial_bbk5v")
 texture = ExtResource("1_qroni")
 one_shot = true
 explosiveness = 0.1
 fixed_fps = 0
 interpolate = false
 draw_order = 0
-process_material = SubResource("ParticleProcessMaterial_bbk5v")
