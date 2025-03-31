@@ -1,6 +1,6 @@
-[gd_scene load_steps=8 format=3 uid="uid://cilccsxovcr7c"]
+[gd_scene load_steps=8 format=3 uid="uid://txoqwqr6oquw"]
 
-[ext_resource type="Texture2D" uid="uid://ssq2p7lpd3yc" path="res://Resources/Effects/particle.png" id="1_qroni"]
+[ext_resource type="Texture2D" uid="uid://ssq2p7lpd3yc" path="res://Resources/Effects/particle.png" id="1_dp6qn"]
 
 [sub_resource type="Animation" id="Animation_uw6xj"]
 length = 0.001
@@ -54,18 +54,18 @@ _data = {
 &"default": SubResource("Animation_bclk1")
 }
 
-[sub_resource type="Curve" id="Curve_s636w"]
+[sub_resource type="Curve" id="Curve_dp6qn"]
 _data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.145594, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
 point_count = 3
 
-[sub_resource type="CurveTexture" id="CurveTexture_ogy7a"]
-curve = SubResource("Curve_s636w")
+[sub_resource type="CurveTexture" id="CurveTexture_d60u4"]
+curve = SubResource("Curve_dp6qn")
 
-[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_bbk5v"]
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_o4chc"]
 lifetime_randomness = 0.5
 particle_flag_disable_z = true
 emission_shape = 3
-emission_box_extents = Vector3(72, 1, 1)
+emission_box_extents = Vector3(160, 1, 1)
 angle_min = 1.07288e-05
 angle_max = 360.0
 direction = Vector3(0, -1, 0)
@@ -75,7 +75,7 @@ initial_velocity_max = 200.0
 angular_velocity_min = -360.0
 angular_velocity_max = 360.0
 gravity = Vector3(0, -200, 0)
-scale_curve = SubResource("CurveTexture_ogy7a")
+scale_curve = SubResource("CurveTexture_d60u4")
 
 [node name="BuildingDestroyParticles" type="Node2D"]
 y_sort_enabled = true
@@ -92,11 +92,11 @@ position = Vector2(0, 64)
 [node name="GPUParticles2D" type="GPUParticles2D" parent="Node2D"]
 position = Vector2(0, -54)
 emitting = false
-amount = 50
-texture = ExtResource("1_qroni")
+amount = 100
+texture = ExtResource("1_dp6qn")
 one_shot = true
 explosiveness = 0.1
 fixed_fps = 0
 interpolate = false
 draw_order = 0
-process_material = SubResource("ParticleProcessMaterial_bbk5v")
+process_material = SubResource("ParticleProcessMaterial_o4chc")
