@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://v8vjtr58ygq6"]
+[gd_scene load_steps=14 format=3 uid="uid://v8vjtr58ygq6"]
 
 [ext_resource type="Script" uid="uid://b0opbokw5ttt6" path="res://Scenes/Level/BaseLevel.cs" id="1_3048e"]
 [ext_resource type="TileSet" uid="uid://mdxvjfbqrigq" path="res://Resources/tiles.tres" id="2_cto1u"]
@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://cb4ivxnssa7uq" path="res://Scenes/Building/BuildingGhost.tscn" id="6_xkhpp"]
 [ext_resource type="PackedScene" uid="uid://ddgr625ayh8iy" path="res://Scenes/GoldMine.tscn" id="7_3o5n4"]
 [ext_resource type="PackedScene" uid="uid://ljpwpdbudton" path="res://Scenes/Manager/ResourceIndicatorManager.tscn" id="7_jsyjl"]
+[ext_resource type="PackedScene" uid="uid://cgqcasen23fks" path="res://Scenes/Manager/FloatingTextManager.tscn" id="13_qx3j0"]
 
 [node name="BaseLevel" type="Node"]
 script = ExtResource("1_3048e")
@@ -21,10 +22,10 @@ LevelCompleteScreenScene = ExtResource("2_v3toa")
 buildingManager = NodePath("../BuildingManager")
 
 [node name="BuildingManager" parent="." node_paths=PackedStringArray("gridManager", "gameUI", "ySortRoot") instance=ExtResource("2_rxvdx")]
+buildingGhostScene = ExtResource("6_xkhpp")
 gridManager = NodePath("../GridManager")
 gameUI = NodePath("../GameUI")
 ySortRoot = NodePath("../YSortRoot")
-buildingGhostScene = ExtResource("6_xkhpp")
 
 [node name="GridManager" parent="." node_paths=PackedStringArray("highlightTilemapLayer", "baseTerrainTilemapLayer") instance=ExtResource("2_pgdv6")]
 highlightTilemapLayer = NodePath("../YSortRoot/HighlightTileMapLayer")
@@ -57,3 +58,5 @@ tile_set = ExtResource("2_mm6ca")
 
 [node name="ResourceIndicatorManager" parent="." node_paths=PackedStringArray("gridManager") instance=ExtResource("7_jsyjl")]
 gridManager = NodePath("../GridManager")
+
+[node name="FloatingTextManager" parent="." instance=ExtResource("13_qx3j0")]

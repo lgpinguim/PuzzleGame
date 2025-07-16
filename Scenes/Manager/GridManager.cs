@@ -165,11 +165,6 @@ public partial class GridManager : Node
 		return new Vector2I((int)tilePosition.X, (int)tilePosition.Y);
 	}
 
-	public HashSet<Vector2I> GetCollectedResourceTiles()
-	{
-		return collectedResourceTiles.ToHashSet();
-	}
-
 	public bool CanDestroyBuilding(BuildingComponent toDestroyBuildingComponent)
 	{
 		if (toDestroyBuildingComponent.BuildingResource.BuildableRadius > 0)
@@ -182,6 +177,11 @@ public partial class GridManager : Node
 			return CanDestroyBarracks(toDestroyBuildingComponent);
 		}
 		return true;
+	}
+
+	public HashSet<Vector2I> GetCollectedResourceTiles()
+	{
+		return collectedResourceTiles.ToHashSet();
 	}
 
 	private bool CanDestroyBarracks(BuildingComponent toDestroyBuildingComponent)

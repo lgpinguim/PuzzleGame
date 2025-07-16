@@ -7,52 +7,51 @@ namespace Game.Manager;
 
 public partial class ResourceIndicatorManager : Node
 {
-    [Export]
-    private GridManager gridManager;
-    
-    [Export]
-    private PackedScene resourceIndicatorScene;
-    
-    private HashSet<Vector2I> indicatedTiles = new ();
-    private Dictionary<Vector2I, ResourceIndicator> tileToResourceindicator = new ();
+	[Export]
+	private GridManager gridManager;
+	[Export]
+	private PackedScene resourceIndicatorScene;
 
-    public override void _Ready()
-    {
-        gridManager.ResourceTilesUpdated += OnResourceTilesUpdated;
-    }
+	private HashSet<Vector2I> indicatedTiles = new();
+	private Dictionary<Vector2I, ResourceIndicator> tileToResourceIndicator = new();
 
-    private void UpdateIndicators(IEnumerable<Vector2I> newIndicatedTiles, IEnumerable<Vector2I> toRemoveTiles)
-    {
-        foreach (var newTile in newIndicatedTiles)
-        {
-            var indicator = resourceIndicatorScene.Instantiate<ResourceIndicator>();
-            AddChild(indicator);
-            indicator.GlobalPosition = newTile * 64;
-            tileToResourceindicator[newTile] = indicator;
-        }
+	public override void _Ready()
+	{
+		gridManager.ResourceTilesUpdated += OnResourceTilesUpdated;
+	}
 
-        foreach (var removeTile in toRemoveTiles)
-        {
-            tileToResourceindicator.TryGetValue(removeTile, out var indicator);
-            if (IsInstanceValid(indicator))
-            {
-                indicator.Destroy();
-            }
-            tileToResourceindicator.Remove(removeTile);
-        }
-    }
+	private void UpdateIndicators(IEnumerable<Vector2I> newIndicatedTiles, IEnumerable<Vector2I> toRemoveTiles)
+	{
+		foreach (var newTile in newIndicatedTiles)
+		{
+			var indicator = resourceIndicatorScene.Instantiate<ResourceIndicator>();
+			AddChild(indicator);
+			indicator.GlobalPosition = newTile * 64;
+			tileToResourceIndicator[newTile] = indicator;
+		}
 
-    private void HandleResourceTilesUpdated()
-    {
-        var currentResourceTiles = gridManager.GetCollectedResourceTiles();
-        var newlyIndicatedTiles = currentResourceTiles.Except(indicatedTiles);
-        var toRemoveTiles = indicatedTiles.Except(currentResourceTiles);
-        indicatedTiles = currentResourceTiles;
-        UpdateIndicators(newlyIndicatedTiles, toRemoveTiles);
-    }
+		foreach (var removeTile in toRemoveTiles)
+		{
+			tileToResourceIndicator.TryGetValue(removeTile, out var indicator);
+			if (IsInstanceValid(indicator))
+			{
+				indicator.Destroy();
+			}
+			tileToResourceIndicator.Remove(removeTile);
+		}
+	}
 
-    private void OnResourceTilesUpdated(int _)
-    {
-        Callable.From(HandleResourceTilesUpdated).CallDeferred();
-    }
+	private void HandleResourceTilesUpdated()
+	{
+		var currentResourceTiles = gridManager.GetCollectedResourceTiles();
+		var newlyIndicatedTiles = currentResourceTiles.Except(indicatedTiles);
+		var toRemoveTiles = indicatedTiles.Except(currentResourceTiles);
+		indicatedTiles = currentResourceTiles;
+		UpdateIndicators(newlyIndicatedTiles, toRemoveTiles);
+	}
+
+	private void OnResourceTilesUpdated(int _)
+	{
+		Callable.From(HandleResourceTilesUpdated).CallDeferred();
+	}
 }

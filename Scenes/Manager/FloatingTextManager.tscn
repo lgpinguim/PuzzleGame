@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3 uid="uid://cgqcasen23fks"]
+
+[ext_resource type="Script" uid="uid://0klk0fu4g2k5" path="res://Scenes/Manager/FloatingTextManager.cs" id="1_hbxw1"]
+[ext_resource type="PackedScene" uid="uid://cjpe6ajrjoqkx" path="res://Scenes/UI/FloatingText.tscn" id="2_one8f"]
+
+[node name="FloatingTextManager" type="Node"]
+script = ExtResource("1_hbxw1")
+floatingTextScene = ExtResource("2_one8f")
