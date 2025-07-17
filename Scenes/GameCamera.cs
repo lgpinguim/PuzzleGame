@@ -44,21 +44,40 @@ public partial class GameCamera : Camera2D
         var viewportRect = GetViewportRect();
         var halfWidth = viewportRect.Size.X / 2;
         var halfHeight = viewportRect.Size.Y / 2;
-        var xClamped = Mathf.Clamp(GlobalPosition.X, LimitLeft + halfWidth, LimitRight - halfWidth);
-        var yClamped = Mathf.Clamp(GlobalPosition.Y, LimitTop + halfHeight, LimitBottom - halfHeight);
-        GlobalPosition = new Vector2(xClamped, yClamped);
+        
+        var minX = LimitLeft + halfWidth;
+        var maxX = LimitRight - halfWidth;
+        var minY = LimitTop + halfHeight;
+        var maxY = LimitBottom - halfHeight;
+
+        if (minX <= maxX && minY <= maxY)
+        {
+            var xClamped = Mathf.Clamp(GlobalPosition.X, minX, maxX);
+            var yClamped = Mathf.Clamp(GlobalPosition.Y, minY, maxY);
+            GlobalPosition = new Vector2(xClamped, yClamped);
+        }
         
         ApplyCameraShake(delta);
     }
 
     public void SetBoundingRect(Rect2I boundingRect)
     {
-        LimitLeft = boundingRect.Position.X * TILE_SIZE;
-        LimitRight = boundingRect.End.X * TILE_SIZE;
-        LimitTop = boundingRect.Position.Y * TILE_SIZE;
-        LimitBottom = boundingRect.End.Y * TILE_SIZE;
-    }
+        var requiredWidth = (int)(GetViewportRect().Size.X / TILE_SIZE);
+        var requiredHeight = (int)(GetViewportRect().Size.Y / TILE_SIZE);
 
+        var safeRect = boundingRect;
+
+        if (safeRect.Size.X < requiredWidth)
+            safeRect.Size = new Vector2I(requiredWidth, safeRect.Size.Y);
+        if (safeRect.Size.Y < requiredHeight)
+            safeRect.Size = new Vector2I(safeRect.Size.X, requiredHeight);
+
+        LimitLeft = safeRect.Position.X * TILE_SIZE;
+        LimitRight = safeRect.End.X * TILE_SIZE;
+        LimitTop = safeRect.Position.Y * TILE_SIZE;
+        LimitBottom = safeRect.End.Y * TILE_SIZE;
+    }
+    
     public void CenterOnPosition(Vector2 position)
     {
         GlobalPosition = position;
