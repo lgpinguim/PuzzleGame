@@ -22,10 +22,10 @@ LevelCompleteScreenScene = ExtResource("2_v3toa")
 buildingManager = NodePath("../BuildingManager")
 
 [node name="BuildingManager" parent="." node_paths=PackedStringArray("gridManager", "gameUI", "ySortRoot") instance=ExtResource("2_rxvdx")]
-buildingGhostScene = ExtResource("6_xkhpp")
 gridManager = NodePath("../GridManager")
 gameUI = NodePath("../GameUI")
 ySortRoot = NodePath("../YSortRoot")
+buildingGhostScene = ExtResource("6_xkhpp")
 
 [node name="GridManager" parent="." node_paths=PackedStringArray("highlightTilemapLayer", "baseTerrainTilemapLayer") instance=ExtResource("2_pgdv6")]
 highlightTilemapLayer = NodePath("../YSortRoot/HighlightTileMapLayer")
