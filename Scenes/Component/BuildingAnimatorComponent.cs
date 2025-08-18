@@ -1,4 +1,5 @@
 using System.Linq;
+using Game.Autoload;
 using Godot;
 
 namespace Game.Component;
@@ -19,10 +20,12 @@ public partial class BuildingAnimatorComponent : Node2D
     private Tween activeTween;
     private Node2D animationRootNode;
     private Sprite2D maskNode;
+    private AudioStreamPlayer impactAudioStreamPlayer;
 
     public override void _Ready()
     {
         YSortEnabled = false;
+        impactAudioStreamPlayer = GetNode<AudioStreamPlayer>("ImpactAudioStreamPlayer");
         SetupNodes();
     }
 
@@ -47,6 +50,7 @@ public partial class BuildingAnimatorComponent : Node2D
             var impactParticles = impactParticlesScene.Instantiate<Node2D>();
             Owner.GetParent().AddChild(impactParticles);
             impactParticles.GlobalPosition = GlobalPosition;
+            impactAudioStreamPlayer.Play();
             GameCamera.Shake();
         }));
 
@@ -77,6 +81,7 @@ public partial class BuildingAnimatorComponent : Node2D
         Owner.GetParent().AddChild(destroyParticles);
         destroyParticles.GlobalPosition = GlobalPosition;
         
+        AudioHelpers.PlayBuildingDestruction();
         GameCamera.Shake();
 
         activeTween = CreateTween();
@@ -94,7 +99,7 @@ public partial class BuildingAnimatorComponent : Node2D
 
     private void SetupNodes()
     {
-        var spriteNode = GetChildren().FirstOrDefault() as Node2D;
+        var spriteNode = this.GetFirstNodeOfType<Node2D>();
         if (spriteNode == null)
         {
             return;
