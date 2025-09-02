@@ -1,7 +1,8 @@
-[gd_scene load_steps=9 format=4 uid="uid://jul2e4v6yfw2"]
+[gd_scene load_steps=10 format=4 uid="uid://jul2e4v6yfw2"]
 
 [ext_resource type="Script" uid="uid://b7ckjhmqj2j17" path="res://Scenes/UI/MainMenu.cs" id="1_synrh"]
 [ext_resource type="TileSet" uid="uid://mdxvjfbqrigq" path="res://Resources/tiles.tres" id="2_xn48v"]
+[ext_resource type="PackedScene" uid="uid://delm3bgjfnrwe" path="res://Scenes/UI/OptionsMenu.tscn" id="2_ynupv"]
 [ext_resource type="PackedScene" uid="uid://mb8xo0abqmyh" path="res://Scenes/Level/Util/ElevationLayer.tscn" id="3_dyepj"]
 [ext_resource type="PackedScene" uid="uid://wsu0x1ocdqo1" path="res://Scenes/Building/Village.tscn" id="4_yd70y"]
 [ext_resource type="PackedScene" uid="uid://gckpc37chrjw" path="res://Scenes/Building/Tower.tscn" id="5_kcwgb"]
@@ -11,6 +12,7 @@
 
 [node name="MainMenu" type="Node"]
 script = ExtResource("1_synrh")
+optionsMenuScene = ExtResource("2_ynupv")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(640, 192)
@@ -102,6 +104,7 @@ layout_mode = 2
 text = "Play"
 
 [node name="OptionsButton" type="Button" parent="CanvasLayer/MainMenuContainer/PanelContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Options"
 
